@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPMG Agent Control Tower — Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --kpmg-blue: #00338D;
+    --kpmg-mid: #005EB8;
+    --kpmg-accent: #0091DA;
+    --kpmg-light: #E8F4FD;
+    --kpmg-dark: #00205B;
+    --werchota-gold: #C4A35A;
+    --werchota-gold-light: #F5EDD8;
+    --stage-identify: #7B68EE;
+    --stage-assess: #4ECDC4;
+    --stage-prioritize: #FFB347;
+    --stage-deliver: #00338D;
+    --stage-train: #6BCB77;
+    --stage-review: #E63946;
+    --surface: #FFFFFF;
+    --surface-2: #F4F6FA;
+    --surface-3: #EEF1F8;
+    --text-primary: #0D1B3E;
+    --text-secondary: #4A5568;
+    --text-muted: #8896B0;
+    --border: rgba(0,51,141,0.12);
+    --border-strong: rgba(0,51,141,0.25);
+    --shadow: 0 2px 12px rgba(0,51,141,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,51,141,0.12);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0D1B3E;
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* TOP NAV */
+  .topbar {
+    background: #00205B;
+    border-bottom: 2px solid var(--kpmg-mid);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .kpmg-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #FFFFFF;
+    letter-spacing: 2px;
+  }
+
+  .brand-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  .brand-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .topbar-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge-live {
+    background: rgba(107,203,119,0.2);
+    color: #6BCB77;
+    border: 1px solid rgba(107,203,119,0.3);
+  }
+
+  .badge-ado {
+    background: rgba(0,145,218,0.2);
+    color: #0091DA;
+    border: 1px solid rgba(0,145,218,0.3);
+  }
+
+  .badge-pbi {
+    background: rgba(196,163,90,0.2);
+    color: var(--werchota-gold);
+    border: 1px solid rgba(196,163,90,0.3);
+  }
+
+  /* TAB NAV */
+  .tabs-nav {
+    background: #021440;
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .tab-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab-btn:hover { color: rgba(255,255,255,0.75); }
+
+  .tab-btn.active {
+    color: #FFFFFF;
+    border-bottom-color: var(--werchota-gold);
+  }
+
+  .tab-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  .tab-btn.active .tab-num {
+    background: rgba(196,163,90,0.2);
+    color: var(--werchota-gold);
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    padding: 28px 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    margin-bottom: 24px;
+  }
+
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--werchota-gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+
+  .section-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* KPI ROW */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+
+  .kpi-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+
+  .kpi-delta {
+    font-size: 11px;
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .delta-up { color: #6BCB77; }
+  .delta-down { color: #E63946; }
+  .delta-warn { color: var(--werchota-gold); }
+
+  /* CARDS */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+  }
+
+  .card-white {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title-dark {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+  .grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+
+  .mb-16 { margin-bottom: 16px; }
+  .mb-24 { margin-bottom: 24px; }
+
+  /* FUNNEL */
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .funnel-stage:hover { filter: brightness(1.15); }
+
+  .stage-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .stage-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #FFFFFF;
+    min-width: 90px;
+  }
+
+  .stage-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stage-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  .stage-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .stage-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--werchota-gold);
+    min-width: 65px;
+    text-align: right;
+  }
+
+  /* SCORE MATRIX TABLE */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .score-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .score-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+  }
+
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+  .score-pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .score-accept { background: rgba(107,203,119,0.15); color: #6BCB77; }
+  .score-park { background: rgba(196,163,90,0.15); color: var(--werchota-gold); }
+  .score-reject { background: rgba(230,57,70,0.15); color: #E63946; }
+
+  /* HEATMAP */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 120px repeat(5, 1fr);
+    gap: 3px;
+    font-size: 11px;
+  }
+
+  .hm-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 6px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hm-row-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .hm-cell {
+    height: 36px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .hm-0 { background: rgba(107,203,119,0.12); color: #6BCB77; }
+  .hm-1 { background: rgba(107,203,119,0.25); color: #4aba5c; }
+  .hm-2 { background: rgba(196,163,90,0.25); color: var(--werchota-gold); }
+  .hm-3 { background: rgba(230,57,70,0.2); color: #e05260; }
+  .hm-4 { background: rgba(230,57,70,0.35); color: #E63946; }
+
+  /* SPRINT BURNDOWN */
+  .sprint-info {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .sprint-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sprint-stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+  }
+
+  .sprint-stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFFFFF;
+  }
+
+  /* FORMS FIELD TABLE */
+  .forms-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .forms-table th {
+    background: var(--kpmg-blue);
+    color: #FFFFFF;
+    padding: 10px 14px;
+    font-size: 11px;
+    text-align: left;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .forms-table th:first-child { border-radius: 8px 0 0 0; }
+  .forms-table th:last-child { border-radius: 0 8px 0 0; }
+
+  .forms-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(0,51,141,0.08);
+    font-size: 12px;
+    color: var(--text-primary);
+    vertical-align: top;
+  }
+
+  .forms-table tr:last-child td { border-bottom: none; }
+  .forms-table tr:nth-child(even) td { background: rgba(0,51,141,0.03); }
+
+  .field-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .tag-req { background: #E8F4FD; color: #00338D; border: 1px solid #b3d4f0; }
+  .tag-wer { background: #F5EDD8; color: #8B6914; border: 1px solid #e0cc9a; }
+  .tag-aud { background: #FDE8EA; color: #8B1A24; border: 1px solid #f0b3ba; }
+  .tag-opt { background: #F4F6FA; color: #4A5568; border: 1px solid #C8D0E0; }
+
+  /* ADO SCHEMA */
+  .ado-field {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .ado-field-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--kpmg-accent);
+    margin-bottom: 4px;
+  }
+
+  .ado-field-type {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--werchota-gold);
+    margin-bottom: 6px;
+  }
+
+  .ado-field-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+  }
+
+  .ado-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .ado-val-tag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 8px;
+    background: rgba(0,91,184,0.2);
+    color: #5ab4f0;
+    border-radius: 12px;
+  }
+
+  /* PPT SLIDES */
+  .slide-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .slide-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.1);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .slide-content {}
+
+  .slide-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+
+  .slide-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  .slide-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .stag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .stag-blue { background: rgba(0,91,184,0.25); color: #5ab4f0; }
+  .stag-gold { background: rgba(196,163,90,0.2); color: var(--werchota-gold); }
+  .stag-green { background: rgba(107,203,119,0.15); color: #6BCB77; }
+  .stag-red { background: rgba(230,57,70,0.15); color: #e05260; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ROI BAR */
+  .roi-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .roi-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .roi-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    min-width: 130px;
+  }
+
+  .roi-bars {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .roi-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .roi-bar-track {
+    flex: 1;
+    height: 7px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .roi-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .roi-bar-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    min-width: 55px;
+    text-align: right;
+  }
+
+  .roi-bar-type {
+    font-size: 9px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'DM Mono', monospace;
+    min-width: 50px;
+  }
+
+  /* ACCURACY GAUGES */
+  .gauge-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .gauge-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .gauge-metric {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .gauge-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .gauge-sublabel {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .g-green { color: #6BCB77; }
+  .g-amber { color: var(--werchota-gold); }
+  .g-red { color: #E63946; }
+
+  /* TRUST RADAR */
+  .trust-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .trust-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .trust-name {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    min-width: 140px;
+  }
+
+  .trust-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .trust-fill { height: 100%; border-radius: 3px; }
+
+  .trust-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <span class="kpmg-logo">KPMG</span>
+    <div class="brand-divider"></div>
+    <span class="brand-title">Agent Control Tower · Switzerland Automation Framework</span>
+  </div>
+  <div class="topbar-badges">
+    <span class="badge-pill badge-live">● LIVE</span>
+    <span class="badge-pill badge-ado">Azure DevOps</span>
+    <span class="badge-pill badge-pbi">Power BI · Werchota Layer</span>
+  </div>
+</div>
+
+<div class="tabs-nav">
+  <button class="tab-btn active" onclick="showView('pipeline')">
+    A — Strategic Pipeline <span class="tab-num">26 agents</span>
+  </button>
+  <button class="tab-btn" onclick="showView('efficiency')">
+    B — Efficiency & ROI <span class="tab-num">CHF 420K</span>
+  </button>
+  <button class="tab-btn" onclick="showView('governance')">
+    C — Governance & Risk <span class="tab-num">3 flags</span>
+  </button>
+  <button class="tab-btn" onclick="showView('velocity')">
+    D — Operational Velocity <span class="tab-num">Sprint 7</span>
+  </button>
+  <button class="tab-btn" onclick="showView('intake')">
+    MS Forms Schema
+  </button>
+  <button class="tab-btn" onclick="showView('ado')">
+    ADO Custom Fields
+  </button>
+  <button class="tab-btn" onclick="showView('deck')">
+    Board Deck Outline
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- ===== VIEW A: STRATEGIC PIPELINE ===== -->
+  <div class="view active" id="view-pipeline">
+    <div class="section-header">
+      <div class="section-eyebrow">View A · Power BI</div>
+      <div class="section-title">Strategic Pipeline — Agent Funnel</div>
+      <div class="section-sub">6-stage KPMG lifecycle · monetary & hourly value by stage · Werchota accuracy layer on Review</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Agents</div>
+        <div class="kpi-value">26</div>
+        <div class="kpi-delta delta-up">↑ 4 this sprint</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pipeline Value</div>
+        <div class="kpi-value">1.2M</div>
+        <div class="kpi-delta delta-up">CHF hourly savings / year</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Score</div>
+        <div class="kpi-value">74</div>
+        <div class="kpi-delta delta-up">≥70 threshold ✓</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">At Risk (score &lt;70)</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-delta delta-warn">⚠ Parked for review</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Hallucination</div>
+        <div class="kpi-value">4.2%</div>
+        <div class="kpi-delta delta-warn">Werchota target: &lt;3%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Auditor Trust Score</div>
+        <div class="kpi-value">7.8</div>
+        <div class="kpi-delta delta-up">/ 10 · n=42 surveys</div>
+      </div>
+    </div>
+
+    <div class="grid-12 mb-24">
+      <div class="card">
+        <div class="card-title">Lifecycle Funnel · Agents by Stage</div>
+
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#7B68EE"></div>Identify</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4ECDC4"></div>Assess</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#FFB347"></div>Prioritize</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#005EB8"></div>Deliver</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6BCB77"></div>Train</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E63946"></div>Review</div>
+        </div>
+
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#7B68EE"></div>
+          <div class="stage-name">1. Identify</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:85%;background:#7B68EE"></div></div>
+          <div class="stage-count">11 agents</div>
+          <div class="stage-value">—</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#4ECDC4"></div>
+          <div class="stage-name">2. Assess</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:55%;background:#4ECDC4"></div></div>
+          <div class="stage-count">7 agents</div>
+          <div class="stage-value">CHF 0</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#FFB347"></div>
+          <div class="stage-name">3. Prioritize</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:30%;background:#FFB347"></div></div>
+          <div class="stage-count">4 agents</div>
+          <div class="stage-value">CHF 280K</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#005EB8"></div>
+          <div class="stage-name">4. Deliver</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:15%;background:#005EB8"></div></div>
+          <div class="stage-count">2 agents</div>
+          <div class="stage-value">CHF 480K</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#6BCB77"></div>
+          <div class="stage-name">5. Train</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:10%;background:#6BCB77"></div></div>
+          <div class="stage-count">1 agent</div>
+          <div class="stage-value">CHF 95K</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="stage-dot" style="background:#E63946"></div>
+          <div class="stage-name">6. Review ★</div>
+          <div class="stage-bar-wrap"><div class="stage-bar" style="width:8%;background:#E63946"></div></div>
+          <div class="stage-count">1 agent</div>
+          <div class="stage-value">CHF 145K</div>
+        </div>
+
+        <div style="margin-top:16px;padding:12px;background:rgba(196,163,90,0.08);border:1px solid rgba(196,163,90,0.2);border-radius:8px;">
+          <div style="font-size:11px;color:var(--werchota-gold);font-family:'DM Mono',monospace;margin-bottom:6px;">★ WERCHOTA ENHANCEMENT — REVIEW STAGE</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">Review agents are tracked beyond task completion. Three new metrics replace binary pass/fail: <strong style="color:#fff">Agent Accuracy %</strong> (output vs Golden Dataset), <strong style="color:#fff">Hallucination Rate %</strong> (LLM output drift detected via RAGAS), and <strong style="color:#fff">Auditor Trust Score</strong> (0–10 qualitative survey from audit teams). An agent only exits Review when all three clear their thresholds.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card mb-16">
+          <div class="card-title">Prioritize + Deliver · Value Breakdown</div>
+          <div style="position:relative;height:200px;">
+            <canvas id="valueChart" role="img" aria-label="Bar chart showing CHF value of agents in Prioritize and Deliver stages by category">Meeting Minutes Agent, Roll-forward Report, Scoping Matrix, Financial Statements</canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Agents at ≥70 Threshold</div>
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Score</th>
+                <th>Stage</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Meeting Minutes Agent</td>
+                <td><span class="score-pill score-accept">82</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Deliver</td>
+                <td style="color:#6BCB77;font-size:11px">● Active</td>
+              </tr>
+              <tr>
+                <td>Roll-forward Report</td>
+                <td><span class="score-pill score-accept">78</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Deliver</td>
+                <td style="color:#6BCB77;font-size:11px">● Active</td>
+              </tr>
+              <tr>
+                <td>Scoping Matrix Input</td>
+                <td><span class="score-pill score-accept">74</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Prioritize</td>
+                <td style="color:var(--werchota-gold);font-size:11px">◐ In BA</td>
+              </tr>
+              <tr>
+                <td>Bank Statement Screen.</td>
+                <td><span class="score-pill score-accept">71</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Prioritize</td>
+                <td style="color:var(--werchota-gold);font-size:11px">◐ Backlog</td>
+              </tr>
+              <tr>
+                <td>Translation Agent</td>
+                <td><span class="score-pill score-park">64</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Assess</td>
+                <td style="color:var(--werchota-gold);font-size:11px">⏸ Parked</td>
+              </tr>
+              <tr>
+                <td>AITS Mapping Auto.</td>
+                <td><span class="score-pill score-park">58</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Assess</td>
+                <td style="color:var(--werchota-gold);font-size:11px">⏸ Parked</td>
+              </tr>
+              <tr>
+                <td>FER Financial Stmt.</td>
+                <td><span class="score-pill score-reject">42</span></td>
+                <td style="color:rgba(255,255,255,0.5)">Assess</td>
+                <td style="color:#E63946;font-size:11px">✗ Rejected</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- WERCHOTA REVIEW METRICS -->
+    <div class="card mb-24">
+      <div class="card-title">Werchota Layer · Agentic Reasoning Metrics (Review Stage)</div>
+      <div class="gauge-row">
+        <div class="gauge-card">
+          <div class="gauge-metric">Agent Accuracy</div>
+          <div class="gauge-value g-green">94.3%</div>
+          <div class="gauge-sublabel">vs Golden Dataset</div>
+        </div>
+        <div class="gauge-card">
+          <div class="gauge-metric">Hallucination Rate</div>
+          <div class="gauge-value g-amber">4.2%</div>
+          <div class="gauge-sublabel">Target &lt;3% · RAGAS eval</div>
+        </div>
+        <div class="gauge-card">
+          <div class="gauge-metric">Auditor Trust Score</div>
+          <div class="gauge-value g-green">7.8/10</div>
+          <div class="gauge-sublabel">n=42 auditor surveys</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div style="flex:1">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em">Trust Scores by Audit Team</div>
+          <div class="trust-bars">
+            <div class="trust-row">
+              <div class="trust-name">Large Clients (Anita Benz)</div>
+              <div class="trust-track"><div class="trust-fill" style="width:85%;background:#6BCB77"></div></div>
+              <div class="trust-score">8.5</div>
+            </div>
+            <div class="trust-row">
+              <div class="trust-name">KMU / Mid-size</div>
+              <div class="trust-track"><div class="trust-fill" style="width:80%;background:#6BCB77"></div></div>
+              <div class="trust-score">8.0</div>
+            </div>
+            <div class="trust-row">
+              <div class="trust-name">Group Audit</div>
+              <div class="trust-track"><div class="trust-fill" style="width:75%;background:#6BCB77"></div></div>
+              <div class="trust-score">7.5</div>
+            </div>
+            <div class="trust-row">
+              <div class="trust-name">FS (Sven Waldenmaier)</div>
+              <div class="trust-track"><div class="trust-fill" style="width:72%;background:var(--werchota-gold)"></div></div>
+              <div class="trust-score">7.2</div>
+            </div>
+            <div class="trust-row">
+              <div class="trust-name">Sales / Pursuits</div>
+              <div class="trust-track"><div class="trust-fill" style="width:68%;background:var(--werchota-gold)"></div></div>
+              <div class="trust-score">6.8</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;padding:14px;background:rgba(0,91,184,0.08);border-radius:8px;border:1px solid rgba(0,91,184,0.2)">
+          <div style="font-size:11px;color:#5ab4f0;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Why Agentic Reasoning Tracking &gt; Task Completion</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);padding-left:10px;border-left:2px solid #5ab4f0;line-height:1.5">Audit quality depends on <em>reasoning correctness</em>, not output generation. An agent can "complete" a trial balance reconciliation but hallucinate a line item — a task-completion metric gives it 100% while it failed materially.</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);padding-left:10px;border-left:2px solid var(--werchota-gold);line-height:1.5">Independence risk: an agent citing the wrong standard (e.g., ISA-CH vs IFRS) may still complete its task. Only Hallucination Rate + SAT/TIRA compliance check catches this.</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);padding-left:10px;border-left:2px solid #6BCB77;line-height:1.5">Auditor Trust Score (qualitative) is the final gate — even a technically perfect agent that auditors don't trust cannot be deployed. The Werchota approach captures this human signal.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VIEW B: EFFICIENCY & ROI ===== -->
+  <div class="view" id="view-efficiency">
+    <div class="section-header">
+      <div class="section-eyebrow">View B · Power BI</div>
+      <div class="section-title">Efficiency Analytics — Manual vs Agentic Effort</div>
+      <div class="section-sub">Werchota-style ROI visualization · per-agent and portfolio-level · based on Curaden AI Playbook benchmarks</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Manual Hours / Year</div>
+        <div class="kpi-value">8,200</div>
+        <div class="kpi-delta delta-down">Before automation</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Agentic Hours / Year</div>
+        <div class="kpi-value">2,140</div>
+        <div class="kpi-delta delta-up">74% reduction</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Hours Saved</div>
+        <div class="kpi-value">6,060</div>
+        <div class="kpi-delta delta-up">CHF ~420K value</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg HITL Ratio</div>
+        <div class="kpi-value">18%</div>
+        <div class="kpi-delta delta-up">Human oversight maintained</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Net ROI Year 1</div>
+        <div class="kpi-value">3.4×</div>
+        <div class="kpi-delta delta-up">vs Curaden target 3×</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card">
+        <div class="card-title">Manual vs Agentic Hours · Per Agent Category</div>
+        <div style="position:relative;height:280px;">
+          <canvas id="roiChart" role="img" aria-label="Horizontal bar chart comparing manual versus agentic effort hours per agent category">Scoping Matrix: manual 1200 agentic 200; Meeting Minutes: manual 800 agentic 80; Roll-forward: manual 1400 agentic 350; Trial Balance: manual 900 agentic 180</canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Portfolio ROI Projection · CHF (Werchota Model)</div>
+        <div style="position:relative;height:280px;">
+          <canvas id="roiLineChart" role="img" aria-label="Line chart of cumulative cost versus value in CHF over 12 months">Cost rises slowly; Value accelerates past breakeven at month 4, reaching CHF 420K by month 12.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">Agent-Level Efficiency Comparison</div>
+      <div class="roi-comparison">
+        <div class="roi-row">
+          <div class="roi-label">Meeting Minutes Agent</div>
+          <div class="roi-bars">
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Manual</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:100%;background:#E63946"></div></div>
+              <div class="roi-bar-val" style="color:#E63946">800 h</div>
+            </div>
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Agentic</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:10%;background:#6BCB77"></div></div>
+              <div class="roi-bar-val" style="color:#6BCB77">80 h</div>
+            </div>
+          </div>
+        </div>
+        <div class="roi-row">
+          <div class="roi-label">Scoping Matrix</div>
+          <div class="roi-bars">
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Manual</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:100%;background:#E63946"></div></div>
+              <div class="roi-bar-val" style="color:#E63946">1,200 h</div>
+            </div>
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Agentic</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:17%;background:#6BCB77"></div></div>
+              <div class="roi-bar-val" style="color:#6BCB77">200 h</div>
+            </div>
+          </div>
+        </div>
+        <div class="roi-row">
+          <div class="roi-label">Roll-forward Report</div>
+          <div class="roi-bars">
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Manual</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:100%;background:#E63946"></div></div>
+              <div class="roi-bar-val" style="color:#E63946">1,400 h</div>
+            </div>
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Agentic</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:25%;background:#6BCB77"></div></div>
+              <div class="roi-bar-val" style="color:#6BCB77">350 h</div>
+            </div>
+          </div>
+        </div>
+        <div class="roi-row">
+          <div class="roi-label">Trial Balance Recon.</div>
+          <div class="roi-bars">
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Manual</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:100%;background:#E63946"></div></div>
+              <div class="roi-bar-val" style="color:#E63946">900 h</div>
+            </div>
+            <div class="roi-bar-wrap">
+              <div class="roi-bar-type">Agentic</div>
+              <div class="roi-bar-track"><div class="roi-bar-fill" style="width:20%;background:#6BCB77"></div></div>
+              <div class="roi-bar-val" style="color:#6BCB77">180 h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Werchota Human-in-the-Loop (HITL) Ratio by Agent</div>
+      <div style="position:relative;height:200px;">
+        <canvas id="hitlChart" role="img" aria-label="Scatter chart of agent HITL ratio versus accuracy showing inverse correlation">Higher accuracy agents have lower HITL requirements.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VIEW C: GOVERNANCE ===== -->
+  <div class="view" id="view-governance">
+    <div class="section-header">
+      <div class="section-eyebrow">View C · Power BI</div>
+      <div class="section-title">Governance & Risk — Compliance Heatmap</div>
+      <div class="section-sub">Data privacy · SAT/TIRA independence · GDPR-CH · per-agent flags · audit independence checks</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Compliance Clear</div>
+        <div class="kpi-value">18</div>
+        <div class="kpi-delta delta-up">of 26 agents</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Under Review</div>
+        <div class="kpi-value">5</div>
+        <div class="kpi-delta delta-warn">SAT/TIRA pending</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Flagged</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-delta delta-down">Action required</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Client Data Agents</div>
+        <div class="kpi-value">9</div>
+        <div class="kpi-delta delta-warn">FS / Corporates data</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Audit Independence</div>
+        <div class="kpi-value">96%</div>
+        <div class="kpi-delta delta-up">SAT compliance rate</div>
+      </div>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">Compliance Heatmap · Agents × Risk Dimensions</div>
+      <div style="margin-bottom:10px">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(107,203,119,0.4)"></div>Clear</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(107,203,119,0.6)"></div>Low risk</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(196,163,90,0.5)"></div>Needs review</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(230,57,70,0.4)"></div>Flagged</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(230,57,70,0.6)"></div>Blocked</div>
+        </div>
+      </div>
+      <div class="heatmap-grid">
+        <div class="hm-header"></div>
+        <div class="hm-header">Data Privacy</div>
+        <div class="hm-header">SAT/TIRA</div>
+        <div class="hm-header">GDPR-CH</div>
+        <div class="hm-header">Independence</div>
+        <div class="hm-header">Data Class</div>
+
+        <div class="hm-row-label">Meeting Min. Agent</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-1">Low</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Internal</div>
+
+        <div class="hm-row-label">Roll-forward Report</div>
+        <div class="hm-cell hm-1">Low</div>
+        <div class="hm-cell hm-2">Review</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-1">Low</div>
+        <div class="hm-cell hm-1">Confid.</div>
+
+        <div class="hm-row-label">Scoping Matrix</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Internal</div>
+
+        <div class="hm-row-label">Bank Stmt Screen.</div>
+        <div class="hm-cell hm-3">Flagged</div>
+        <div class="hm-cell hm-3">Flagged</div>
+        <div class="hm-cell hm-2">Review</div>
+        <div class="hm-cell hm-3">Flagged</div>
+        <div class="hm-cell hm-4">FS Data</div>
+
+        <div class="hm-row-label">Trial Bal. Recon.</div>
+        <div class="hm-cell hm-2">Review</div>
+        <div class="hm-cell hm-2">Review</div>
+        <div class="hm-cell hm-1">Low</div>
+        <div class="hm-cell hm-2">Review</div>
+        <div class="hm-cell hm-2">Corp.</div>
+
+        <div class="hm-row-label">Translation Agent</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Public</div>
+
+        <div class="hm-row-label">FER Fin. Stmt.</div>
+        <div class="hm-cell hm-4">Blocked</div>
+        <div class="hm-cell hm-4">Blocked</div>
+        <div class="hm-cell hm-3">Flagged</div>
+        <div class="hm-cell hm-4">Blocked</div>
+        <div class="hm-cell hm-4">Restrict.</div>
+
+        <div class="hm-row-label">ISA-CH Notebooks</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-1">Low</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-0">Clear</div>
+        <div class="hm-cell hm-1">Internal</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Audit_Independence_Check · Boolean Summary</div>
+        <table class="score-table">
+          <thead><tr><th>Agent</th><th>SAT</th><th>TIRA</th><th>Independence</th><th>HITL</th></tr></thead>
+          <tbody>
+            <tr><td>Meeting Min.</td><td style="color:#6BCB77">✓</td><td style="color:#6BCB77">✓</td><td style="color:#6BCB77">✓</td><td style="color:rgba(255,255,255,0.5)">15%</td></tr>
+            <tr><td>Roll-forward</td><td style="color:#6BCB77">✓</td><td style="color:var(--werchota-gold)">⏳</td><td style="color:#6BCB77">✓</td><td style="color:rgba(255,255,255,0.5)">25%</td></tr>
+            <tr><td>Scoping Matrix</td><td style="color:#6BCB77">✓</td><td style="color:#6BCB77">✓</td><td style="color:#6BCB77">✓</td><td style="color:rgba(255,255,255,0.5)">10%</td></tr>
+            <tr><td>Bank Stmt.</td><td style="color:#E63946">✗</td><td style="color:#E63946">✗</td><td style="color:#E63946">✗</td><td style="color:rgba(255,255,255,0.5)">100%</td></tr>
+            <tr><td>Trial Balance</td><td style="color:var(--werchota-gold)">⏳</td><td style="color:var(--werchota-gold)">⏳</td><td style="color:var(--werchota-gold)">⏳</td><td style="color:rgba(255,255,255,0.5)">40%</td></tr>
+            <tr><td>FER Fin. Stmt.</td><td style="color:#E63946">✗</td><td style="color:#E63946">✗</td><td style="color:#E63946">✗</td><td style="color:rgba(255,255,255,0.5)">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Risk Distribution · All 26 Agents</div>
+        <div style="position:relative;height:200px;">
+          <canvas id="riskDonut" role="img" aria-label="Donut chart showing compliance status distribution across all 26 agents">Clear: 18, Under Review: 5, Flagged: 3.</canvas>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,0.6)"><span style="width:10px;height:10px;border-radius:2px;background:#6BCB77;display:inline-block"></span>Clear (18)</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,0.6)"><span style="width:10px;height:10px;border-radius:2px;background:#FFB347;display:inline-block"></span>Review (5)</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,0.6)"><span style="width:10px;height:10px;border-radius:2px;background:#E63946;display:inline-block"></span>Flagged (3)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VIEW D: VELOCITY ===== -->
+  <div class="view" id="view-velocity">
+    <div class="section-header">
+      <div class="section-eyebrow">View D · Power BI · ATG Sprint Planning</div>
+      <div class="section-title">Operational Velocity — Sprint Burndown</div>
+      <div class="section-sub">Skora · Gopurathingal dev team · Sprint 7 · May 2026 · 4-week cycle</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Sprint</div>
+        <div class="kpi-value">7</div>
+        <div class="kpi-delta">May Wk1 → Wk4</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Story Points</div>
+        <div class="kpi-value">84</div>
+        <div class="kpi-delta delta-up">62 completed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Velocity</div>
+        <div class="kpi-value">73%</div>
+        <div class="kpi-delta delta-up">On track</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Blockers</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-delta delta-warn">SAT review pending</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Developers</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-delta">Skora · Gopurathingal</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card">
+        <div class="card-title">Sprint Burndown · May 2026</div>
+        <div style="position:relative;height:260px;">
+          <canvas id="burndownChart" role="img" aria-label="Line chart showing ideal burndown versus actual remaining story points across 4 weeks">Ideal: linear from 84 to 0. Actual: 84, 65, 42, 22, progressing ahead of schedule.</canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Work Items by Dev Phase (ADO)</div>
+        <div style="position:relative;height:260px;">
+          <canvas id="devPhaseChart" role="img" aria-label="Stacked bar chart of work items per developer per phase">Skora: BA 2, Dev 5, Review 1. Gopurathingal: BA 1, Dev 4, Review 2.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">Sprint Work Items · ADO Custom Field View</div>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>Work Item</th>
+            <th>Dev</th>
+            <th>Dev_Phase</th>
+            <th>KPMG Score</th>
+            <th>Complexity</th>
+            <th>Ind. Check</th>
+            <th>SP</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Meeting Minutes Agent - Core NLP</td>
+            <td style="color:rgba(255,255,255,0.5)">Skora</td>
+            <td><span class="score-pill score-accept" style="font-size:10px">Deliver</span></td>
+            <td><span class="score-pill score-accept">82</span></td>
+            <td style="color:var(--werchota-gold)">Med</td>
+            <td style="color:#6BCB77">✓</td>
+            <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5)">13</td>
+            <td style="color:#6BCB77;font-size:11px">● Done</td>
+          </tr>
+          <tr>
+            <td>Scoping Matrix - Input Parser</td>
+            <td style="color:rgba(255,255,255,0.5)">Gopurathingal</td>
+            <td><span class="score-pill score-accept" style="font-size:10px">Deliver</span></td>
+            <td><span class="score-pill score-accept">74</span></td>
+            <td style="color:#6BCB77">Low</td>
+            <td style="color:#6BCB77">✓</td>
+            <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5)">8</td>
+            <td style="color:#6BCB77;font-size:11px">● Done</td>
+          </tr>
+          <tr>
+            <td>Roll-forward - TIRA Integration</td>
+            <td style="color:rgba(255,255,255,0.5)">Skora</td>
+            <td><span class="score-pill score-park" style="font-size:10px">Review</span></td>
+            <td><span class="score-pill score-accept">78</span></td>
+            <td style="color:#E63946">High</td>
+            <td style="color:var(--werchota-gold)">⏳</td>
+            <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5)">21</td>
+            <td style="color:var(--werchota-gold);font-size:11px">◐ In Review</td>
+          </tr>
+          <tr>
+            <td>Bank Stmt - SAT Compliance Block</td>
+            <td style="color:rgba(255,255,255,0.5)">Gopurathingal</td>
+            <td><span class="score-pill score-park" style="font-size:10px">Blocked</span></td>
+            <td><span class="score-pill score-accept">71</span></td>
+            <td style="color:#E63946">High</td>
+            <td style="color:#E63946">✗</td>
+            <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5)">13</td>
+            <td style="color:#E63946;font-size:11px">⊘ Blocked</td>
+          </tr>
+          <tr>
+            <td>ISA-CH Notebook Agent - BA</td>
+            <td style="color:rgba(255,255,255,0.5)">Skora</td>
+            <td><span class="score-pill score-park" style="font-size:10px">Assess</span></td>
+            <td><span class="score-pill score-park">68</span></td>
+            <td style="color:var(--werchota-gold)">Med</td>
+            <td style="color:#6BCB77">✓</td>
+            <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,0.5)">5</td>
+            <td style="color:var(--werchota-gold);font-size:11px">◐ Active</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== INTAKE: MS FORMS SCHEMA ===== -->
+  <div class="view" id="view-intake">
+    <div class="section-header">
+      <div class="section-eyebrow">MS Forms · Intake Schema</div>
+      <div class="section-title">KPMG + Werchota Intake Form — Field Specification</div>
+      <div class="section-sub">Standard KPMG Assessment fields + Werchota feasibility extensions + Audit-specific fields</div>
+    </div>
+
+    <div class="card-white mb-24">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <span class="field-tag tag-req">KPMG Required</span>
+        <span class="field-tag tag-wer">Werchota Extension</span>
+        <span class="field-tag tag-aud">Audit-Specific</span>
+        <span class="field-tag tag-opt">Optional</span>
+      </div>
+
+      <table class="forms-table">
+        <thead>
+          <tr>
+            <th style="width:200px">Field</th>
+            <th style="width:80px">Tag</th>
+            <th>Input Type</th>
+            <th>Purpose / Scoring Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Automation Type</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Dropdown: New idea / Enhancement / Change</td><td>Routes to correct BA track. Change = lower BA cost, bumps Feasibility +5.</td></tr>
+          <tr><td><strong>Use Case Goal</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Paragraph: "I want to [x]. Saves [y] hrs/CHF."</td><td>Seeded into Business Value dimension (0-30 pts). Mandatory for ≥20 score.</td></tr>
+          <tr><td><strong>Suggested Solution / Tool</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Text + Dropdown (Global/UK tool list)</td><td>Checks against ATG tool registry. Existing tool = Feasibility +10.</td></tr>
+          <tr><td><strong>Use Case Frequency</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Dropdown: Daily / Weekly / Monthly / Per-engagement</td><td>Determines Reusability score (0-15). Daily = 15; Per-engagement = 0.</td></tr>
+          <tr><td><strong>Data Availability</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Multi-select: ERP / Sharepoint / Email / Database / Manual</td><td>Maps to Feasibility. Manual-only = Feasibility -5 (unstable input).</td></tr>
+          <tr><td><strong>Data Security</strong></td><td><span class="field-tag tag-aud">Audit</span></td><td>Boolean: Processes FS / Corporates client data?</td><td>If Yes → Auto-triggers SAT/TIRA review flag in ADO. Blocks Deliver until cleared.</td></tr>
+          <tr><td><strong>Automation Benefit</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Multi-select + free text per: Efficiency / Quality / Risk / Data</td><td>Qualitative evidence for Business Value. Reviewers calibrate 0-30 from this.</td></tr>
+          <tr><td><strong>Process Owner</strong></td><td><span class="field-tag tag-req">Required</span></td><td>People picker (KPMG directory)</td><td>Auto-assigned to BA for initial assessment. SLA: 5 business days.</td></tr>
+          <tr><td><strong>Data Structure Type</strong></td><td><span class="field-tag tag-wer">Werchota</span></td><td>Dropdown: Structured / Semi-structured / Unstructured / Mixed</td><td>Werchota feasibility: Unstructured = Complexity HIGH in ADO. Structured = Low.</td></tr>
+          <tr><td><strong>Golden Dataset Available?</strong></td><td><span class="field-tag tag-wer">Werchota</span></td><td>Boolean + link field</td><td>Prerequisite for Werchota Review stage. No Golden Dataset = cannot exit Assess without waiver.</td></tr>
+          <tr><td><strong>Expected HITL Ratio</strong></td><td><span class="field-tag tag-wer">Werchota</span></td><td>Slider: 0% (full auto) – 100% (human does all)</td><td>HITL &gt;80% → Suitability score capped at 10. HITL &lt;20% → Suitability max 20. Captured as Werchota_HITL_Ratio in ADO.</td></tr>
+          <tr><td><strong>LLM Orchestration Required?</strong></td><td><span class="field-tag tag-wer">Werchota</span></td><td>Dropdown: None / Single-LLM / Multi-agent / RAG / Custom</td><td>Sets Werchota_Complexity field. Multi-agent / Custom = HIGH complexity, needs Stallinger/Hasal BA.</td></tr>
+          <tr><td><strong>Audit Independence Risk</strong></td><td><span class="field-tag tag-aud">Audit</span></td><td>Dropdown: None / Low / Medium / High</td><td>High = automatic Audit_Independence_Check = FALSE until SAT review. Blocks scoring above 65.</td></tr>
+          <tr><td><strong>ISA / IFRS Standard Dependency</strong></td><td><span class="field-tag tag-aud">Audit</span></td><td>Multi-select: ISA-CH / IFRS / FER / OR / None</td><td>Flags need for standard-specific hallucination testing. Included in Review stage test suite.</td></tr>
+          <tr><td><strong>Estimated Hours Saved / Year</strong></td><td><span class="field-tag tag-opt">Optional</span></td><td>Number field</td><td>Pre-populates ROI estimate in Power BI View B. If blank, modelled from Use Case Frequency × avg task time.</td></tr>
+          <tr><td><strong>Team / Department</strong></td><td><span class="field-tag tag-req">Required</span></td><td>Multi-select dropdown (all KPMG CH teams)</td><td>Populates Business Representative routing. FS / AC = specialist BA track.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== ADO SCHEMA ===== -->
+  <div class="view" id="view-ado">
+    <div class="section-header">
+      <div class="section-eyebrow">Azure DevOps · Custom Fields Schema</div>
+      <div class="section-title">ADO Work Item — Custom Field Definitions</div>
+      <div class="section-sub">These fields are the data bridge between MS Forms intake, Power BI Control Tower, and the KPMG Hexagon lifecycle.</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em">KPMG Core Fields</div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">KPMG_PriorityScore</div>
+          <div class="ado-field-type">Integer · Range 0–100 · Auto-calculated</div>
+          <div class="ado-field-desc">Composite of the Initial Assessment Matrix: Business Value (0-30) + Strategic Alignment (0-20) + Suitability (0-20) + Feasibility (0-15) + Reusability (0-15). Scores are entered by Katarina Naldi / BA team post-assessment. Threshold gates: Accept ≥70, Park 50-69, Reject &lt;50.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Accept: ≥70</span>
+            <span class="ado-val-tag">Park: 50-69</span>
+            <span class="ado-val-tag">Reject: &lt;50</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">KPMG_BusinessValue</div>
+          <div class="ado-field-type">Integer · Range 0–30 · Manual (BA review)</div>
+          <div class="ado-field-desc">Sub-score feeding into KPMG_PriorityScore. Set during Assess stage by Stallinger/Hasal. Value of 30 = material, recurring, multi-team or compliance-relevant impact.</div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">KPMG_StrategicAlignment</div>
+          <div class="ado-field-type">Integer · Range 0–20 · Manual (PM + Stream Lead)</div>
+          <div class="ado-field-desc">Assessed by Katarina Naldi + Svenja Hefti. 0 = out of scope → auto-reject regardless of total score. 20 = strong alignment with current WFM priorities.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">0 = Auto-reject</span>
+            <span class="ado-val-tag">20 = Strong alignment</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Dev_Phase</div>
+          <div class="ado-field-type">Enum · Aligned to KPMG Hexagon</div>
+          <div class="ado-field-desc">Maps directly to the 6 hexagon stages. Used in Power BI Views A and D for funnel and sprint filtering. Updated by Engineering Manager (Stefan Petrovic) at each sprint planning.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Identify</span>
+            <span class="ado-val-tag">Assess</span>
+            <span class="ado-val-tag">Prioritize</span>
+            <span class="ado-val-tag">Deliver</span>
+            <span class="ado-val-tag">Train</span>
+            <span class="ado-val-tag">Review</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Audit_Independence_Check</div>
+          <div class="ado-field-type">Boolean · Default: FALSE · Set by Nicolas Vogt</div>
+          <div class="ado-field-desc">Must be TRUE before any agent can move to Deliver stage when processing client data. Nicolas Vogt (Solution Architect) validates SAT/TIRA compliance and sets this field. If client data flag was set in MS Forms, this starts as FALSE and blocks Dev_Phase advancement.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">TRUE = SAT/TIRA clear</span>
+            <span class="ado-val-tag">FALSE = Blocked</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em">Werchota Enhancement Fields</div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_Complexity</div>
+          <div class="ado-field-type">Enum: Low / Medium / High · Set from MS Forms LLM field</div>
+          <div class="ado-field-desc">Maps LLM orchestration needs to dev resource allocation. HIGH = requires both Skora + Gopurathingal + Nicolas Vogt architecture review. LOW = single developer sprint item. Used in Sprint Planning (Monday Afternoon) for capacity allocation.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Low = single LLM</span>
+            <span class="ado-val-tag">Med = RAG / multi-step</span>
+            <span class="ado-val-tag">High = multi-agent</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_HITL_Ratio</div>
+          <div class="ado-field-type">Decimal 0.0–1.0 · From MS Forms slider → updated in Review</div>
+          <div class="ado-field-desc">Planned HITL ratio from intake. Updated with actual ratio post-deployment in Review stage. Drives Suitability scoring cap. Power BI View B uses this field for the HITL scatter chart.</div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_AgentAccuracy</div>
+          <div class="ado-field-type">Decimal 0–100% · Set during Review stage · RAGAS eval</div>
+          <div class="ado-field-desc">Populated by dev team during Review using automated evaluation against the Golden Dataset (linked in Werchota_GoldenDatasetLink). Agent must achieve &gt;90% to exit Review. Tracked per sprint for regression detection.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Gate: &gt;90% to exit Review</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_HallucinationRate</div>
+          <div class="ado-field-type">Decimal 0–100% · RAGAS / custom eval · Review stage</div>
+          <div class="ado-field-desc">Measured using RAGAS faithfulness + answer relevancy metrics. Target &lt;3% for audit-facing agents. Agents with standard references (ISA-CH, IFRS) get additional grounding tests. Trend tracked sprint-over-sprint in Power BI.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Target: &lt;3%</span>
+            <span class="ado-val-tag">Warn: 3-8%</span>
+            <span class="ado-val-tag">Block: &gt;8%</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_AuditorTrustScore</div>
+          <div class="ado-field-type">Decimal 0–10 · Qualitative survey · n = auditor respondents</div>
+          <div class="ado-field-desc">Collected via quarterly MS Forms survey sent to Business Representatives (Anita Benz, Matthias Bachmann, Silvia Berchtold, Sven Waldenmaier, etc.). Average of 5 sub-dimensions: Accuracy trust, Explanation quality, Error communication, Time savings felt, Would recommend. Score &lt;6.0 triggers Review despite passing technical checks.</div>
+          <div class="ado-values">
+            <span class="ado-val-tag">Gate: &gt;6.5</span>
+            <span class="ado-val-tag">Target: &gt;8.0</span>
+          </div>
+        </div>
+
+        <div class="ado-field">
+          <div class="ado-field-name">Werchota_GoldenDatasetLink</div>
+          <div class="ado-field-type">URL · Sharepoint / ADO artifact link</div>
+          <div class="ado-field-desc">Link to the anonymized test dataset used for accuracy evaluation. Must be populated before Dev_Phase can move to Review. Lucie Hasal / Sebastian Stallinger responsible for dataset creation during BA phase.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BOARD DECK ===== -->
+  <div class="view" id="view-deck">
+    <div class="section-header">
+      <div class="section-eyebrow">Executive Board · 10-Slide Deck</div>
+      <div class="section-title">Board Presentation Outline — Reto Benz / Thomas Schwarz</div>
+      <div class="section-sub">Full transparency into AI development · Black Box elimination · Every agent meets the ≥70 threshold</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="slide-card">
+          <div class="slide-num">01</div>
+          <div class="slide-content">
+            <div class="slide-title">Agent Control Tower — Why Now?</div>
+            <div class="slide-desc">Framing slide. KPMG Switzerland has 26 AI agents in flight across 6 lifecycle stages, managing CHF 1.2M in annual savings potential. Without systematic tracking, 30% of projects fail quality gates silently. This dashboard eliminates the black box.</div>
+            <div class="slide-tags">
+              <span class="stag stag-blue">Context</span>
+              <span class="stag stag-gold">Executive Summary</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">02</div>
+          <div class="slide-content">
+            <div class="slide-title">The KPMG 6-Stage Hexagon — Operationalized</div>
+            <div class="slide-desc">Visual of the hexagon (Identify → Assess → Prioritize → Deliver → Train → Review) with real agent counts per stage and the monthly business + ATG meeting cadence overlaid. Makes the abstract framework tangible.</div>
+            <div class="slide-tags">
+              <span class="stag stag-blue">Framework</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">03</div>
+          <div class="slide-content">
+            <div class="slide-title">The ≥70 Score: Our Quality Gate in Practice</div>
+            <div class="slide-desc">Detailed walkthrough of the Initial Assessment Matrix: 5 dimensions, 100-point scale, threshold logic (Accept/Park/Reject). Show 3 real agent examples: one accepted, one parked, one rejected — with actual scores. Builds board confidence in the rigor.</div>
+            <div class="slide-tags">
+              <span class="stag stag-gold">Governance</span>
+              <span class="stag stag-green">Quality</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">04</div>
+          <div class="slide-content">
+            <div class="slide-title">Roles & Decision Rights — Who Does What</div>
+            <div class="slide-desc">One-page RACI from the Roles & Responsibilities slide: Reto Benz / Thomas Schwarz (strategic direction), Joel Wachter (business ownership), Katarina Naldi (PM / orchestration), Stallinger + Hasal (BA), Skora + Gopurathingal (dev), Nicolas Vogt (architecture), Stefan Petrovic (EM). Clarifies accountability.</div>
+            <div class="slide-tags">
+              <span class="stag stag-blue">Org Design</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">05</div>
+          <div class="slide-content">
+            <div class="slide-title">View A: Strategic Pipeline — Live Agent Funnel</div>
+            <div class="slide-desc">Screenshot of Power BI View A. Funnel from 11 in Identify → 2 in Deliver → CHF 480K value at risk. Werchota Review stage overlay showing 3 metrics. Key message: board can see value-in-flight and where bottlenecks are in real time.</div>
+            <div class="slide-tags">
+              <span class="stag stag-gold">Dashboard Demo</span>
+              <span class="stag stag-green">CHF 1.2M Pipeline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="slide-card">
+          <div class="slide-num">06</div>
+          <div class="slide-content">
+            <div class="slide-title">View B: ROI — Manual vs Agentic Effort</div>
+            <div class="slide-desc">View B screenshot. Show the Meeting Minutes Agent: 800 manual hours → 80 agentic hours. 90% reduction. CHF 420K portfolio savings Year 1. ROI curve: breakeven Month 4, 3.4× return by Month 12. Directly addresses board's investment justification question.</div>
+            <div class="slide-tags">
+              <span class="stag stag-green">ROI: 3.4×</span>
+              <span class="stag stag-gold">CHF 420K saved</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">07</div>
+          <div class="slide-content">
+            <div class="slide-title">View C: Governance — Zero Tolerance for Independence Risk</div>
+            <div class="slide-desc">Heatmap screenshot showing Bank Statement Screening Agent blocked (red) across all 5 compliance dimensions. Explain the Audit_Independence_Check boolean: any agent touching client FS data is blocked from Deliver until Nicolas Vogt + SAT/TIRA sign-off. KPMG cannot afford audit independence failures.</div>
+            <div class="slide-tags">
+              <span class="stag stag-red">Risk Mgmt</span>
+              <span class="stag stag-blue">Independence</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">08</div>
+          <div class="slide-content">
+            <div class="slide-title">The Werchota Upgrade: Beyond Task Completion</div>
+            <div class="slide-desc">The critical differentiator slide. Traditional automation tracks "did it run?" Agentic AI requires "did it reason correctly?" Introduce the 3 Werchota metrics: Agent Accuracy (94.3% vs Golden Dataset), Hallucination Rate (4.2% target &lt;3%), Auditor Trust Score (7.8/10). These are industry-leading KPIs for audit AI governance.</div>
+            <div class="slide-tags">
+              <span class="stag stag-gold">Werchota Method</span>
+              <span class="stag stag-green">Industry-leading</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">09</div>
+          <div class="slide-content">
+            <div class="slide-title">View D: Sprint Velocity — Full Dev Transparency</div>
+            <div class="slide-desc">Sprint 7 burndown: 84 points → 62 completed → 2 blockers (SAT review on Roll-forward, Bank Stmt blocked). Skora and Gopurathingal workload visible. Message to board: you can see every sprint, every blocker, in real time — no status report delays, no surprises at month-end.</div>
+            <div class="slide-tags">
+              <span class="stag stag-blue">Ops Transparency</span>
+              <span class="stag stag-green">Sprint 7: 73%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-num">10</div>
+          <div class="slide-content">
+            <div class="slide-title">Next Steps & Board Asks</div>
+            <div class="slide-desc">Three asks: (1) Approve ADO custom field schema for IT deployment — Katarina Naldi + Stefan Petrovic — 2-week SLA. (2) Endorse the Werchota Hallucination Rate &lt;3% as a firm-level standard for all audit AI agents. (3) Confirm annual Business Strategy Workshop date for roadmap priority setting. Closes with 12-month value projection.</div>
+            <div class="slide-tags">
+              <span class="stag stag-red">Action Required</span>
+              <span class="stag stag-gold">3 asks</span>
+              <span class="stag stag-green">12-month plan</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+
+<script>
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  initCharts(name);
+}
+
+const chartsInit = {};
+
+function initCharts(view) {
+  if (chartsInit[view]) return;
+  chartsInit[view] = true;
+
+  if (view === 'pipeline') {
+    new Chart(document.getElementById('valueChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Meet. Min.', 'Roll-forward', 'Scoping Mtrx', 'Bank Stmt.', 'Trial Bal.', 'ISA-CH NB'],
+        datasets: [{
+          label: 'CHF Value (K)',
+          data: [145, 180, 95, 80, 110, 60],
+          backgroundColor: ['#005EB8','#005EB8','#FFB347','#FFB347','#7B68EE','#7B68EE'],
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 }, callback: v => 'CHF '+v+'K' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+
+  if (view === 'efficiency') {
+    new Chart(document.getElementById('roiChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Meet. Minutes', 'Scoping Matrix', 'Roll-forward', 'Trial Bal. Recon', 'Bank Stmt.', 'ISA-CH NB'],
+        datasets: [
+          { label: 'Manual hrs', data: [800,1200,1400,900,600,400], backgroundColor: 'rgba(230,57,70,0.7)', borderRadius: 3 },
+          { label: 'Agentic hrs', data: [80,200,350,180,600,120], backgroundColor: 'rgba(107,203,119,0.7)', borderRadius: 3 }
+        ]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: 'rgba(255,255,255,0.5)', font:{size:10} }, grid: { color:'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: 'rgba(255,255,255,0.6)', font:{size:11} }, grid: { color:'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('roiLineChart'), {
+      type: 'line',
+      data: {
+        labels: ['Mo 1','Mo 2','Mo 3','Mo 4','Mo 5','Mo 6','Mo 7','Mo 8','Mo 9','Mo 10','Mo 11','Mo 12'],
+        datasets: [
+          { label: 'Cost (CHF K)', data: [20,35,50,65,75,85,95,105,115,120,125,130], borderColor: '#E63946', backgroundColor: 'rgba(230,57,70,0.1)', tension: 0.4, fill: true, borderDash:[4,4] },
+          { label: 'Value (CHF K)', data: [5,15,35,70,120,175,230,285,330,370,400,420], borderColor: '#6BCB77', backgroundColor: 'rgba(107,203,119,0.1)', tension: 0.4, fill: true }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks:{color:'rgba(255,255,255,0.5)',font:{size:10}}, grid:{color:'rgba(255,255,255,0.05)'} },
+          y: { ticks:{color:'rgba(255,255,255,0.5)',font:{size:10},callback:v=>'CHF '+v+'K'}, grid:{color:'rgba(255,255,255,0.05)'} }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('hitlChart'), {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Agents',
+          data: [
+            {x:10,y:94},{x:15,y:90},{x:25,y:86},{x:18,y:88},{x:40,y:79},{x:60,y:72},{x:80,y:65},{x:100,y:55}
+          ],
+          backgroundColor: '#0091DA', pointRadius: 7
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend:{display:false} },
+        scales: {
+          x: { title:{display:true,text:'HITL Ratio %',color:'rgba(255,255,255,0.4)',font:{size:11}}, ticks:{color:'rgba(255,255,255,0.5)',font:{size:10}}, grid:{color:'rgba(255,255,255,0.05)'} },
+          y: { title:{display:true,text:'Agent Accuracy %',color:'rgba(255,255,255,0.4)',font:{size:11}}, ticks:{color:'rgba(255,255,255,0.5)',font:{size:10}}, grid:{color:'rgba(255,255,255,0.05)'}, min:50, max:100 }
+        }
+      }
+    });
+  }
+
+  if (view === 'governance') {
+    new Chart(document.getElementById('riskDonut'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Clear (18)','Under Review (5)','Flagged (3)'],
+        datasets: [{
+          data: [18,5,3],
+          backgroundColor: ['rgba(107,203,119,0.8)','rgba(255,179,71,0.8)','rgba(230,57,70,0.8)'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: { legend:{display:false} }
+      }
+    });
+  }
+
+  if (view === 'velocity') {
+    new Chart(document.getElementById('burndownChart'), {
+      type: 'line',
+      data: {
+        labels: ['Wk 1 Start','Wk 1 End','Wk 2 End','Wk 3 End','Wk 4 End'],
+        datasets: [
+          { label: 'Ideal', data: [84,63,42,21,0], borderColor: 'rgba(255,255,255,0.2)', borderDash:[5,5], tension:0, pointRadius:3 },
+          { label: 'Actual', data: [84,65,42,22,null], borderColor: '#0091DA', backgroundColor:'rgba(0,145,218,0.1)', tension:0.3, fill:true, pointRadius:5, pointBackgroundColor:'#0091DA' }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},
+          y:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:10},callback:v=>v+' SP'},grid:{color:'rgba(255,255,255,0.05)'},min:0,max:90}
+        }
+      }
+    });
+
+    new Chart(document.getElementById('devPhaseChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Skora','Gopurathingal'],
+        datasets: [
+          { label: 'Assess/BA', data:[2,1], backgroundColor:'rgba(123,104,238,0.7)', borderRadius:3 },
+          { label: 'Deliver/Dev', data:[5,4], backgroundColor:'rgba(0,94,184,0.8)', borderRadius:3 },
+          { label: 'Review', data:[1,2], backgroundColor:'rgba(230,57,70,0.6)', borderRadius:3 },
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{stacked:true,ticks:{color:'rgba(255,255,255,0.6)',font:{size:12}},grid:{display:false}},
+          y:{stacked:true,ticks:{color:'rgba(255,255,255,0.5)',font:{size:10},callback:v=>v+' items'},grid:{color:'rgba(255,255,255,0.05)'}}
+        }
+      }
+    });
+  }
+}
+
+initCharts('pipeline');
+</script>
+</body>
+</html>
